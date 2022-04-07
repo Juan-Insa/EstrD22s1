@@ -216,8 +216,10 @@ unoSi False = 0
 
 -- Dado un par de entrenadores, devuelve a sus Pokémon en una lista
 juntarPokemon :: (Entrenador, Entrenador) -> [Pokemon]
-juntarPokemon ((ConsE n1 p1 p2), (ConsE n2 p3 p4)) = p1 : p2 : p3 : p4 : []
+juntarPokemon (e1, e2) = pokemonDeEntrenador e1 ++ pokemonDeEntrenador e2
 
+pokemonDeEntrenador :: Entrenador -> [Pokemon]
+pokemonDeEntrenador (ConsE n p1 p2) = p1 : p2 : []
 
 -- 4 FUNCIONES POLIMÓRFICAS
 
