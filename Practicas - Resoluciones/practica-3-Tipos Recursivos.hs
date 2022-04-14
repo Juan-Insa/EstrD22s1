@@ -69,7 +69,7 @@ os2 = Cacharro : Cacharro : Tesoro : []
 -- a) Indica si hay un cofre con un tesoro en el camino
 hayTesoro :: Camino -> Bool
 hayTesoro Fin          = False
-hayTesoro (Nada c)     = hayTesoro c -- acá hace falta el bool? 
+hayTesoro (Nada c)     = hayTesoro c
 hayTesoro (Cofre os c) = hayUnTesoro os || hayTesoro c
 
 -- dada una lista de Objeto, indica si contiene un Tesoro.
@@ -94,30 +94,33 @@ pasosHastaTesoro (Cofre os c) =
 
 -- c) Indica si hay al menos “n” tesoros en el camino.
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros n c = cantDeTesoros c >= n
+alMenosNTesoros n Fin          = False
+alMenosNTesoros n (Nada c)     = alMenosNTesoros n c
+alMenosNTesoros n (Cofre os c) = n .. os .. alMenosNTesoros n c
 
-cantDeTesoros :: Camino -> Int
-cantDeTesoros Fin          = 0
-cantDeTesoros (Nada c)     = cantDeTesoros c
-cantDeTesoros (Cofre os c) = unoSi (hayUnTesoro os) + cantDeTesoros c
 
--- 
+cantDeTesoros :: [Objeto] -> Int
+cantDeTesoros []     = 0
+cantDeTesoros (o:os) = unoSi (esTesoro o) + cantDeTesoros os
+
+
 -- d) Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 --    el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
 --    incluidos tanto 3 como 5 en el resultado
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre _  (-1) _            = 0
-cantTesorosEntre _  _    Fin          = 0  
-cantTesorosEntre n1 n2   (Nada c)     = cantTesorosEntre (n1-1) (n2-1) c
-cantTesorosEntre n1 n2   (Cofre os c) = 
-    if esRango n1 n2 
-        then unoSi (hayUnTesoro os) + cantTesorosEntre n1 (n2-1) c
-        else cantTesorosEntre (n1-1) (n2-1) c
+cantTesorosEntre n m c = cantTesorosHasta (m-n) (avanzarHasta n c)
 
--- dado dos números, indica si se encuentran dentro del rango entre ambos, osea si el primero es igual
--- o menor a 0 y el segundo un número positivo.
-esRango :: Int -> Int -> Bool
-esRango n m = n <= 0 && m >= 0
+avanzarHasta :: Int -> Camino -> Camino
+avanzarHasta 0 c            = c
+avanzarHasta n Fin          = Fin
+avanzarHasta n (Nada c)     = avanzarHasta (n-1) c
+avanzarHasta n (Cofre os c) = avanzarHasta (n-1) c
+
+cantTesorosHasta :: Int -> Camino -> Int
+cantTesorosHasta 0 c            = 0
+cantTesorosHasta n Fin          = 0
+cantTesorosHasta n (Nada c)     = cantTesorosHasta (n-1) c
+cantTesorosHasta n (Cofre os c) = cantDeTesoros os + cantTesorosHasta (n-1) c
 
 
 -- 2. Tipos Arbóreos
