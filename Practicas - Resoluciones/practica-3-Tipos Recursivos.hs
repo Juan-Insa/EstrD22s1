@@ -28,12 +28,8 @@ esMismoColor _    _    = False
 
 -- b) Dado un color y una celda, agrega una bolita de dicho color a la celda.
 poner :: Color -> Celda -> Celda
-poner c CeldaVacia      = Bolita c  CeldaVacia
-poner c (Bolita cb cel) = Bolita cb (poner c cel)
-
-poner' :: Color -> Celda -> Celda
-poner' c CeldaVacia = Bolita c CeldaVacia
-poner' c cel        = Bolita c cel
+poner c CeldaVacia = Bolita c CeldaVacia
+poner c cel        = Bolita c cel
 
 -- c) Dado un color y una celda, quita una bolita de dicho color de la celda. Nota: a diferencia de
 --    Gobstones, esta función es total.
