@@ -79,7 +79,7 @@ concatenar (x:xs) ys = x : concatenar xs ys
 --     en Haskell como reverse.
 reversa :: [a] -> [a]
 reversa []     = []
-reversa xs = last xs : reversa (init xs)
+reversa (x:xs) = reversa xs ++ [x]
 
 -- 14) Dadas dos listas de enteros, devuelve una lista donde el elemento en la posición n es el
 --     máximo entre el elemento n de la primera lista y de la segunda lista, teniendo en cuenta que
@@ -95,10 +95,7 @@ zipMaximos (n:ns) (m:ms) =
 -- 15) Dada una lista devuelve el mínimo
 elMinimo :: Ord a => [a] -> a
 elMinimo (x:[]) = x
-elMinimo (x:xs) = 
-	if x < head xs
-		then elMinimo (x : tail xs)
-        else elMinimo xs
+elMinimo (x:xs) = min x (elMinimo xs)
 
 
 -- 2. RECURSIÓN SOBRE NÚMEROS
@@ -181,10 +178,14 @@ edad (ConsP n e) = e
 --    lista al menos posee una persona.
 elMasViejo :: [Persona] -> Persona
 elMasViejo (p:[]) = p
-elMasViejo (p:ps) = 
-	if edad p > edad (head ps)
-		then elMasViejo (p : tail ps)
-		else elMasViejo ps
+elMasViejo (p:ps) = elMasViejoEntre p (elMasViejo ps)
+
+-- dados dos personas, devuelve aquella con mayor edad.
+elMasViejoEntre :: Persona -> Persona -> Persona
+elMasViejoEntre p1 p2 = 
+	if edad p1 > edad p2
+	    then p1
+	    else p2 
 
 
 -- POKEMON
@@ -210,55 +211,54 @@ cantPokemon (ConsEntrenador n ps) = length ps
 
 -- 2) Devuelve la cantidad de Pokémon de determinado tipo que posee el entrenador.
 cantPokemonDe :: TipoDePokemon -> Entrenador -> Int
-cantPokemonDe t (ConsEntrenador n ps) = cantPokemonDe' t ps
+cantPokemonDe t (ConsEntrenador n ps) = cantDeTipo t ps
 
 -- Devuelve la cantidad de Pokémon de determinado tipo que posee la lista de Pokémon dada.
-cantPokemonDe' :: TipoDePokemon -> [Pokemon] -> Int
-cantPokemonDe' t []     = 0
-cantPokemonDe' t (p:ps) = 
-	if esDeTipo t (tipo p)
-	    then 1 + cantPokemonDe' t ps
-	    else cantPokemonDe' t ps
+cantDeTipo :: TipoDePokemon -> [Pokemon] -> Int
+cantDeTipo t []     = 0
+cantDeTipo t (p:ps) = 
+	if esMismoTipo t (tipo p)
+	    then 1 + cantDeTipo t ps
+	    else cantDeTipo t ps
 
 -- Dado un Pokemon devuelve su tipo.
 tipo :: Pokemon -> TipoDePokemon
 tipo (ConsPokemon t e) = t
 
 -- Dados dos TipoDePokemon indica si son el mismo tipo.
-esDeTipo :: TipoDePokemon -> TipoDePokemon -> Bool
-esDeTipo Agua Agua     = True
-esDeTipo Fuego Fuego   = True
-esDeTipo Planta Planta = True
-esDeTipo _ _           = False
+esMismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
+esMismoTipo Agua Agua     = True
+esMismoTipo Fuego Fuego   = True
+esMismoTipo Planta Planta = True
+esMismoTipo _ _           = False
 
 -- 3) Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo, que le ganarían
 --    a los Pokemon del segundo entrenador.
 losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 losQueLeGanan t (ConsEntrenador n1 ps1) (ConsEntrenador n2 ps2) = 
-	losQueLeGanan' (pokemonDeTipo t ps1) ps2
+	losQueSuperanA (pokemonDeTipo t ps1) ps2
 
 -- dado un TipoDePokemon y una lista de Pokemon, devuelve la lista con los Pokemon de ese tipo.
 pokemonDeTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon]
 pokemonDeTipo t []     = []
 pokemonDeTipo t (p:ps) = 
-	if esDeTipo t (tipo p)
+	if esMismoTipo t (tipo p)
 		then p : pokemonDeTipo t ps
 		else pokemonDeTipo t ps
 
 -- Dadas dos listas de Pokemon, indica la cantidad de Pokemon de la primera que le ganarían  
 -- a los Pokemon de la segunda.
-losQueLeGanan' :: [Pokemon] -> [Pokemon] -> Int
-losQueLeGanan' []       _   = 0
-losQueLeGanan' _        []  = 0
-losQueLeGanan' (p1:ps1) ps2 = 
+losQueSuperanA :: [Pokemon] -> [Pokemon] -> Int
+losQueSuperanA []       _   = 0
+losQueSuperanA (p1:ps1) ps2 = 
 	if superaATodos p1 ps2
-		then 1 + losQueLeGanan' ps1 ps2 
-		else losQueLeGanan' ps1 ps2
+		then 1 + losQueSuperanA ps1 ps2 
+		else losQueSuperanA ps1 ps2
 
 -- Dado un Pokemon y una lista de Pokemon, indica si el pokemon  le gana a todos los de la lista.
 -- precond: la lista de Pokemon no puede ser vacia.
 superaATodos :: Pokemon -> [Pokemon] -> Bool
-superaATodos p1 (p2:[])  = superaA p1 p2 
+superaATodos p1 []       = True 
 superaATodos p1 (p2:ps2) = superaA p1 p2 && superaATodos p1 ps2 
 
 -- Dados dos Pokémon indica si el primero, en base al tipo, es superior al segundo.
@@ -284,7 +284,7 @@ hayTodosLosTipos ps = hayPokemonDe Fuego ps && hayPokemonDe Agua ps && hayPokemo
 -- Dado un TipoDePokemon y una lista de Pokemon indica si la lista posee al menos uno del tipo dado.
 hayPokemonDe :: TipoDePokemon -> [Pokemon] -> Bool
 hayPokemonDe t []     = False
-hayPokemonDe t (p:ps) = esDeTipo t (tipo p) || hayPokemonDe t ps
+hayPokemonDe t (p:ps) = esMismoTipo t (tipo p) || hayPokemonDe t ps
 
 
 -- EMPRESA
@@ -311,23 +311,23 @@ paperclip = ConsProyecto "paperclip"
 
 -- 1) Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
 proyectos :: Empresa -> [Proyecto]
-proyectos (ConsEmpresa rs) = proyectosSinRepetidos (proyectos' rs)
+proyectos (ConsEmpresa rs) = proyectosSinRepetidos (todosLosProyectos rs)
 
 -- Dada una lista de Rol, devuelve todos los proyectos.
-proyectos' :: [Rol] -> [Proyecto]
-proyectos' []     = []
-proyectos' (r:rs) = proyecto r : proyectos' rs
+todosLosProyectos :: [Rol] -> [Proyecto]
+todosLosProyectos []     = []
+todosLosProyectos (r:rs) = proyecto r : todosLosProyectos rs
 
 -- Dado un Rol, devuelve el Proyecto asociado.
 proyecto :: Rol -> Proyecto
 proyecto (Developer s p)  = p
 proyecto (Management s p) = p
 
--- Dada una lista devuelve sin repetidos.
+-- Dada una lista la devuelve sin repetidos.
 proyectosSinRepetidos :: [Proyecto] -> [Proyecto]
 proyectosSinRepetidos []     = []
 proyectosSinRepetidos (p:ps) = 
-	if esProyectoEn p ps 
+	if esProyectoEn p (proyectosSinRepetidos ps) 
 		then proyectosSinRepetidos ps
         else p : proyectosSinRepetidos ps 
 
@@ -348,35 +348,40 @@ nombre (ConsProyecto n) = n
 -- 2) Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen
 --    además a los proyectos dados por parámetro.
 losDevSenior :: Empresa -> [Proyecto] -> Int
-losDevSenior (ConsEmpresa rs) ps = cantQueTrabajanEn' (losDevSenior' rs) ps
+losDevSenior (ConsEmpresa rs) ps = cantDesarrolladoresEn (soloLosDevSenior rs) ps
 
 -- Dada una lista de Rol, devuelve la lista sólo con los Developer Senior.
-losDevSenior' :: [Rol] -> [Rol]
-losDevSenior' []     = [] 
-losDevSenior' (r:rs) = 
+soloLosDevSenior :: [Rol] -> [Rol]
+soloLosDevSenior []     = [] 
+soloLosDevSenior (r:rs) = 
 	if esDevSenior r
-		then r : losDevSenior' rs
-        else losDevSenior' rs
+		then r : soloLosDevSenior rs
+        else soloLosDevSenior rs
 
 -- Dado un Rol, indica si pertenece a un DevSenior.
 esDevSenior :: Rol -> Bool
-esDevSenior (Developer Senior _) = True
-esDevSenior _                    = False
+esDevSenior (Developer s _) = esSenior s
+esDevSenior _               = False
 
+-- dado un seniority indica si es Senior.
+esSenior :: Seniority -> Bool
+esSenior Senior = True
+esSenior _      = False
 
 -- 3) Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
 cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
-cantQueTrabajanEn ps (ConsEmpresa rs) = cantQueTrabajanEn' rs ps
+cantQueTrabajanEn ps (ConsEmpresa rs) = cantDesarrolladoresEn rs ps
 
 -- Dadas una lista Rol y proyectos, devuelve la cantidad de desarrolladores que pertenecen
 -- a los proyectos dados.
-cantQueTrabajanEn' :: [Rol] -> [Proyecto] -> Int
-cantQueTrabajanEn' []     _  = 0
-cantQueTrabajanEn' _      [] = 0
-cantQueTrabajanEn' (r:rs) ps = 
-    if trabajaEn r ps 
-    	then 1 + cantQueTrabajanEn' rs ps
-    	else cantQueTrabajanEn' rs ps
+cantDesarrolladoresEn :: [Rol] -> [Proyecto] -> Int
+cantDesarrolladoresEn []     _  = 0
+cantDesarrolladoresEn (r:rs) ps = unoSi (trabajaEn r ps) + cantDesarrolladoresEn rs ps
+
+-- Dada una condición, devuelve 1 si se cumple y 0 de no hacerlo.
+unoSi :: Bool -> Int
+unoSi True  = 1
+unoSi False = 0
 
 -- Dados un Rol y una lista de Proyecto, indica si el DevSenior trabaja en uno de los proyectos.
 trabajaEn :: Rol -> [Proyecto] -> Bool
@@ -390,13 +395,13 @@ trabajaEn r (p2:ps2) =
 
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
 asignadosPorProyecto e = 
-	asignadosPorProyecto' (proyectos e) (desarrolladores e) 
+	cantPorProyecto (proyectos e) (desarrolladores e) 
 
 -- Dadas unas listas de Proyecto y Rol, devuelve una lista de pares de proyecto junto la cantidad
 -- de desarrolladores involucrados.  
-asignadosPorProyecto' :: [Proyecto] -> [Rol] -> [(Proyecto, Int)]
-asignadosPorProyecto' []     _  = []
-asignadosPorProyecto' (p:ps) rs = (p, cantQueTrabajanEn' rs [p]) : asignadosPorProyecto' ps rs
+cantPorProyecto :: [Proyecto] -> [Rol] -> [(Proyecto, Int)]
+cantPorProyecto []     _  = []
+cantPorProyecto (p:ps) rs = (p, cantDesarrolladoresEn rs [p]) : cantPorProyecto ps rs
 
 -- Dada una empresa devuelve una lista con sus desarrolladores (Rol).
 desarrolladores :: Empresa -> [Rol]
