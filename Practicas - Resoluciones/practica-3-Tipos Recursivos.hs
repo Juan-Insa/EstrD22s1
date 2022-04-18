@@ -110,12 +110,14 @@ cantDeTesoros (o:os) = unoSi (esTesoro o) + cantDeTesoros os
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 cantTesorosEntre n m c = cantTesorosHasta (m-n) (avanzarHasta n c)
 
+-- dado una cantidad de pasos y un camino, avanza la cantidad de pasos por el camino.
 avanzarHasta :: Int -> Camino -> Camino
 avanzarHasta 0 c            = c
 avanzarHasta n Fin          = Fin
 avanzarHasta n (Nada c)     = avanzarHasta (n-1) c
 avanzarHasta n (Cofre os c) = avanzarHasta (n-1) c
 
+-- dado una cantidad de pasos y un camino, indica la cantidad de tesoros en los pasos recorridos del camino.
 cantTesorosHasta :: Int -> Camino -> Int
 cantTesorosHasta 0 c            = 0
 cantTesorosHasta n Fin          = 0
@@ -279,9 +281,27 @@ eval (Neg   e1)    = eval e1 * (-1)
 --    d) - (- x) = x
 simplificar :: ExpA -> ExpA
 simplificar (Valor n)     = Valor n
-simplificar (Sum   e1 e2) = 
-simplificar (Prod  e1 e2) = 
-simplificar (Neg   e1)    = 
+simplificar (Sum   e1 e2) = simplificarSuma (simplificar e1) (simplificar e2) 
+simplificar (Prod  e1 e2) = simplificarProd (simplificar e1) (simplificar e2) 
+simplificar (Neg   e1)    = simplificarNeg (simplificar e1) 
+
+
+simplificarSuma :: ExpA -> ExpA -> ExpA
+simplificarSuma (Valor 0) v2         = v2 
+simplificarSuma v1        (Valor 0)  = v1
+simplificarSuma v1        v2         = Sum v1 v2
+
+
+simplificarProd :: ExpA -> ExpA -> ExpA
+simplificarProd (Valor 0) v2        = Valor 0
+simplificarProd v1        (Valor 0) = Valor 0
+simplificarProd (Valor 1) v2        = v2
+simplificarProd v1        (Valor 1) = v1
+simplificarProd v1        v2        = Prod v1 v2
+
+simplificarNeg :: ExpA -> ExpA
+simplificarNeg (Neg e) = e
+simplificarNeg e       = Neg e
 
 
 
