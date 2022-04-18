@@ -247,10 +247,9 @@ esRamaMasLarga t1 t2 = heightT t1 > heightT t2
 
 -- Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas
 todosLosCaminos :: Tree a -> [[a]]
-todosLosCaminos EmptyT                  = []
-todosLosCaminos (NodeT x EmptyT EmptyT) = [[x]]
+todosLosCaminos EmptyT          = []
 todosLosCaminos (NodeT x ti td) = 
-	agregar x (todosLosCaminos ti) ++ agregar x (todosLosCaminos td)      
+	[x] : agregar x (todosLosCaminos ti) ++ agregar x (todosLosCaminos td)      
 
 -- Dados un elemento y un una lista de listas de elemento, agrega el elemento al comienzo. 
 agregar :: a -> [[a]] -> [[a]]
