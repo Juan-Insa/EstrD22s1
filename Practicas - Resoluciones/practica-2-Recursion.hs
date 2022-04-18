@@ -251,12 +251,9 @@ pokemonDeTipo t (p:ps) =
 losQueSuperanA :: [Pokemon] -> [Pokemon] -> Int
 losQueSuperanA []       _   = 0
 losQueSuperanA (p1:ps1) ps2 = 
-	if superaATodos p1 ps2
-		then 1 + losQueSuperanA ps1 ps2 
-		else losQueSuperanA ps1 ps2
+	unoSi (superaATodos p1 ps2) + losQueSuperanA ps1 ps2
 
 -- Dado un Pokemon y una lista de Pokemon, indica si el pokemon  le gana a todos los de la lista.
--- precond: la lista de Pokemon no puede ser vacia.
 superaATodos :: Pokemon -> [Pokemon] -> Bool
 superaATodos p1 []       = True 
 superaATodos p1 (p2:ps2) = superaA p1 p2 && superaATodos p1 ps2 
