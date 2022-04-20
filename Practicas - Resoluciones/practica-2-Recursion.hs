@@ -323,15 +323,14 @@ proyecto (Management s p) = p
 -- Dada una lista la devuelve sin repetidos.
 proyectosSinRepetidos :: [Proyecto] -> [Proyecto]
 proyectosSinRepetidos []     = []
-proyectosSinRepetidos (p:ps) = 
-	if esProyectoEn p (proyectosSinRepetidos ps) 
-		then proyectosSinRepetidos ps
-        else p : proyectosSinRepetidos ps 
+proyectosSinRepetidos (p:ps) = agregarSiNoEsta p (proyectosSinRepetidos ps)
 
--- Dado un Proyecto y una lista de Proyecto, indica si el proyecto pertenece a la lista.
-esProyectoEn :: Proyecto -> [Proyecto] -> Bool
-esProyectoEn p []      = False
-esProyectoEn p (p2:ps) = esMismoProyecto p p2 || esProyectoEn p ps
+agregarSiNoEsta :: Proyecto -> [Proyecto] -> [Proyecto]
+agregarSiNoEsta p []      = [p]
+agregarSiNoEsta p (p2:ps) =  
+    if esMismoProyecto p p2
+        then agregarSiNoEsta p ps
+        else p2 : agregarSiNoEsta p ps
 
 -- Dados dos Proyecto, indica si tienen el mismo nombre.
 esMismoProyecto :: Proyecto -> Proyecto -> Bool
@@ -404,4 +403,24 @@ cantPorProyecto (p:ps) rs = (p, cantDesarrolladoresEn rs [p]) : cantPorProyecto 
 desarrolladores :: Empresa -> [Rol]
 desarrolladores (ConsEmpresa rs) = rs
 
+
+
+asignadosPorProyecto' :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto' (ConsEmpresa rs) = cantPorProyecto' rs
+
+-- Dadas unas listas de Proyecto y Rol, devuelve una lista de pares de proyecto junto la cantidad
+-- de desarrolladores involucrados.  
+cantPorProyecto' :: [Rol] -> [(Proyecto, Int)]
+cantPorProyecto' []     = []
+cantPorProyecto' (r:rs) = agregarAlProyecto (proyecto r) (cantPorProyecto' rs)
+
+agregarAlProyecto :: Proyecto -> [(Proyecto, Int)] -> [(Proyecto, Int)]
+agregarAlProyecto p []         = [(p,1)]
+agregarAlProyecto p (tpi:tpis) = 
+	if esMismoProyecto p (fst tpi)
+		then sumarIntegrante tpi : tpis
+		else tpi : agregarAlProyecto p tpis
+
+sumarIntegrante :: (Proyecto, Int) -> (Proyecto, Int)
+sumarIntegrante (p,n) = (p,n+1)
 
