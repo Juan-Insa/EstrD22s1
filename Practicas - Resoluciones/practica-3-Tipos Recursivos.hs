@@ -28,8 +28,7 @@ esMismoColor _    _    = False
 
 -- b) Dado un color y una celda, agrega una bolita de dicho color a la celda.
 poner :: Color -> Celda -> Celda
-poner c CeldaVacia = Bolita c CeldaVacia
-poner c cel        = Bolita c cel
+poner c cel = Bolita c cel
 
 -- c) Dado un color y una celda, quita una bolita de dicho color de la celda. Nota: a diferencia de
 --    Gobstones, esta función es total.
@@ -90,9 +89,9 @@ pasosHastaTesoro (Cofre os c) =
 
 -- c) Indica si hay al menos “n” tesoros en el camino.
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros n Fin          = False
-alMenosNTesoros n (Nada c)     = alMenosNTesoros n c
-alMenosNTesoros n (Cofre os c) = n .. os .. alMenosNTesoros n c
+alMenosNTesoros n Fin          = n < 0
+alMenosNTesoros n (Nada c)     = n < 0 || alMenosNTesoros n c
+alMenosNTesoros n (Cofre os c) = n < 0 || alMenosNTesoros (n-cantDeTesoros os) c
 
 
 cantDeTesoros :: [Objeto] -> Int
@@ -236,14 +235,14 @@ listPerLevel2' t      p = listPerLevel2' t (p-1) ++ [levelN p t]
 -- 12) Devuelve los elementos de la rama más larga del árbol.
 ramaMasLarga :: Tree a -> [a]
 ramaMasLarga EmptyT          = []
-ramaMasLarga (NodeT x ti td) = 
-	if esRamaMasLarga ti td
-		then x : ramaMasLarga ti
-		else x : ramaMasLarga td 
+ramaMasLarga (NodeT x ti td) = x : laMasLarga (ramaMasLarga ti) (ramaMasLarga td)
 
--- Dados dos árboles, indica si el primero es más profundo que el segundo.
-esRamaMasLarga :: Tree a -> Tree a -> Bool
-esRamaMasLarga t1 t2 = heightT t1 > heightT t2
+-- dadas dos listas de elementos, devuelve la de mayor longitud.
+laMasLarga :: [a] -> [a] -> [a]
+laMasLarga l1 l2 = 
+	if length l1 > length l2
+		then l1
+		else l2
 
 -- Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas
 todosLosCaminos :: Tree a -> [[a]]
@@ -262,7 +261,7 @@ agregar x (ys:yss) = (x:ys) : agregar x yss
 data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA
 
 -- 1) Dada una expresión aritmética devuelve el resultado evaluarla.
-eval :: ExpA -> -> Int
+eval :: ExpA -> Int
 eval (Valor n)     = n
 eval (Sum   e1 e2) = eval e1 + eval e2
 eval (Prod  e1 e2) = eval e1 * eval e2 
@@ -278,7 +277,7 @@ simplificar :: ExpA -> ExpA
 simplificar (Valor n)     = Valor n
 simplificar (Sum   e1 e2) = simplificarSuma (simplificar e1) (simplificar e2) 
 simplificar (Prod  e1 e2) = simplificarProd (simplificar e1) (simplificar e2) 
-simplificar (Neg   e1)    = simplificarNeg (simplificar e1) 
+simplificar (Neg   e1)    = simplificarNeg  (simplificar e1) 
 
 
 simplificarSuma :: ExpA -> ExpA -> ExpA
