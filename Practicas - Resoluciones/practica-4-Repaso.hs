@@ -482,8 +482,6 @@ losQueExploraronL t (Cazador    n ps l1 l2 l3) =
 --    elemento es la lista de los nombres de los exploradores que exploraron  dicho territorio. Los 
 --    territorios no deben repetirse.
 
--- TODAVIA NO CUMPLE CON LA CONSIGNA :(
-
 exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 exploradoresPorTerritorio (M l) = exploradoresPorTerritorioL l
 
