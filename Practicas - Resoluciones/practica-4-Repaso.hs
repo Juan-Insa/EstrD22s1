@@ -372,7 +372,7 @@ sectoresAsignadosT t (NodeT s si sd) =
 
 -- dado un tripulante y un sector, indica si el tripulante pertenece al sector.
 esAsignadoA :: Tripulante -> Sector -> Bool
-esAsignadoA t (S i cs ts) = elem t ts
+esAsignadoA t (S _ _ ts) = elem t ts
 
 singularSi :: a -> Bool -> [a]
 singularSi x True  = [x]
@@ -408,13 +408,13 @@ manada2 = M (Cazador "pichicho" ["1","2","3","4"]
                (Cazador "firu" ["1","2","3","4","5"]  
 	               (Cria "sfaf") 
 	               (Cria "asfas")
-                   (Cazador "lola" ["1","2","3"] 
-                   	    (Cria "asfasg")
-                   	    (Cria "asgag")
-                   	    (Cria "agsbhsdh")))
+                   (Cria "3etd"))
 	           (Explorador "pancho" []
 	               (Cria "ksa")
-	               (Cria "kasn"))
+	               (Cazador "lola" ["1","2","3","4","5","6"] 
+	               	    (Cria "sfaf") 
+	                    (Cria "asfas")
+                        (Cria "3etd")))
 	           (Cria "qpq"))
 
 manada3 = M (Cazador "pichicho" ["1","2"] 
@@ -423,7 +423,7 @@ manada3 = M (Cazador "pichicho" ["1","2"]
                    (Explorador "lola" ["desembarco del rey", "invernalia"] 
                    	    (Cria "asgag")
                    	    (Cria "agsbhsdh")))
-	           (Explorador "pancho" ["desembarco del rey"]
+	           (Explorador "pancho" ["piedra dragon"]
 	               (Cria "ksa")
 	               (Cria "kasn"))
 	           (Cria "qpq"))
@@ -453,9 +453,9 @@ elAlfa (M l) = elAlfaL l
 
 elAlfaL :: Lobo -> (Nombre, Int)
 elAlfaL (Cria       n)             = (n,0)
-elAlfaL (Explorador n ts l1 l2)    = mayorCazador (mayorCazador (n,0) (elAlfaL l1)) (elAlfaL l2)
+elAlfaL (Explorador n ts l1 l2)    = mayorCazador (n,0) (mayorCazador  (elAlfaL l1) (elAlfaL l2))
 elAlfaL (Cazador    n ps l1 l2 l3) = 
-	mayorCazador (mayorCazador (mayorCazador (n,length ps) (elAlfaL l1)) (elAlfaL l2)) (elAlfaL l3)
+	mayorCazador (n,length ps) (mayorCazador (mayorCazador  (elAlfaL l1) (elAlfaL l2)) (elAlfaL l3))
 
 -- dadas dos tuplas con nombre de lobo y el número de presas asignadas, devuelve la de mayor cantidad
 -- de presas cazadas.
@@ -489,9 +489,10 @@ exploradoresPorTerritorio (M l) = exploradoresPorTerritorioL l
 
 exploradoresPorTerritorioL :: Lobo -> [(Territorio, [Nombre])]
 exploradoresPorTerritorioL (Cria       n)             = []
-exploradoresPorTerritorioL (Explorador n ts l1 l2)    = agregarExploradoresA n ts (exploradoresPorTerritorioL l1 ++ exploradoresPorTerritorioL l2)
+exploradoresPorTerritorioL (Explorador n ts l1 l2)    = 
+	agregarExploradoresA n ts (unirSinTerritorioRepetidos (exploradoresPorTerritorioL l1) (exploradoresPorTerritorioL l2))
 exploradoresPorTerritorioL (Cazador    n ps l1 l2 l3) = 
-	exploradoresPorTerritorioL l1 ++ exploradoresPorTerritorioL l2 ++ exploradoresPorTerritorioL l3
+	unirSinTerritorioRepetidos (exploradoresPorTerritorioL l1) (unirSinTerritorioRepetidos (exploradoresPorTerritorioL l2) (exploradoresPorTerritorioL l3))
 
 -- dada una lista de pares territorio/nombre, y una lista de pares territorio/lista de nombres, agrega 
 -- los nombres del primer par a la lista de nombres del segundo al que le corresponde el mismo territorio.
@@ -515,8 +516,33 @@ agregarExploradorA n t p =
 
 -- dados un nombre y un par territorio/lista de nombre, agrega el nombre a la lista de nombres del par.
 agregarNombre :: Nombre -> (Territorio, [Nombre]) -> (Territorio, [Nombre])
-agregarNombre n (t,ns) = (t, n : ns)
+agregarNombre n (t,ns) = (t, agregarSiNoPertenece n ns)
 
+-- dados dos lista de tuplas de teritorio/lista de nombres, las une por territorio, juntando los nombres.
+unirSinTerritorioRepetidos :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+unirSinTerritorioRepetidos [] ys     = ys
+unirSinTerritorioRepetidos (x:xs) ys = unirTerritorio x (unirSinTerritorioRepetidos xs ys)
+
+
+unirTerritorio :: (Territorio, [Nombre]) -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+unirTerritorio t []     = t : []
+unirTerritorio t (x:xs) = 
+    if fst t == fst x
+        then ((fst t), unirSinRepetidos (snd t) (snd x)) : xs
+        else x : (unirTerritorio t xs)
+
+-- dadas dos listas de elementos las une sin repetidos.
+unirSinRepetidos :: Eq a => [a] -> [a] -> [a]
+unirSinRepetidos []     ys = ys
+unirSinRepetidos (x:xs) ys = agregarSiNoPertenece x (unirSinRepetidos xs ys)
+
+-- dados un elemento y una lista de elementos, agrega el elemento si no se encuentra en la lista.
+agregarSiNoPertenece :: Eq a => a -> [a] -> [a]
+agregarSiNoPertenece e []     = e : []
+agregarSiNoPertenece e (y:ys) =
+	if (e == y)
+	  then y : ys
+	  else y : agregarSiNoPertenece e ys
 
 -- 6) dado un nombre de cazador y una manada, indica el nombre de todos los cazadores que tienen
 --    como subordinado al cazador dado (directa o indirectamente). 
