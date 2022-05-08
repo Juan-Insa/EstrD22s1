@@ -4,6 +4,7 @@ module Queue1(Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 --    final de la lista y desencolarse por delante.
 
 -- Invariantes de Representación:
+-- no hay.
 
 data Queue a = Q [a]
 

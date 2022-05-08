@@ -2,6 +2,9 @@ module Stack1(Stack, emptyS, isEmptyS, push, top, pop, lenS) where
 
 data Stack a = S [a]
 
+-- Invariante de Representación:
+-- no hay.
+
 -- Crea una pila vacía.
 -- Costo: O(1).
 emptyS :: Stack a

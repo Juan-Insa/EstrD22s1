@@ -3,7 +3,7 @@ module Set2 (Set, emptyS, addS, belongs, sizeS, removeS, unionS, setToList) wher
 data Set a = S [a] 
 
 -- Inv. de Representación
--- 
+-- no hay.
 
 -- Crea un conjunto vacío.
 -- Costo: O(1).

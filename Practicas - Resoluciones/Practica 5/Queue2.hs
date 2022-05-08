@@ -4,6 +4,7 @@ module Queue2(Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 --    la eficiencia entre ambas implementaciones
  
 -- Invariantes de Representación:
+-- no hay.
 
 data Queue a = Q [a]
 
