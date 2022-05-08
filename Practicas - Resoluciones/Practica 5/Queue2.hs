@@ -4,7 +4,6 @@ module Queue2(Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 --    la eficiencia entre ambas implementaciones
  
 -- Invariantes de Representación:
--- 1) funciona como una cola inversa, se agrega por delante y quita por el final de la lista.
 
 data Queue a = Q [a]
 
@@ -24,11 +23,11 @@ queue :: a -> Queue a -> Queue a
 queue x (Q xs) = Q (x:xs)
 
 -- Dada una cola devuelve el primer elemento de la cola.
--- Costo: O(n)
+-- Costo: O(n), siendo n la cant de elementos de la cola.
 firstQ :: Queue a -> a
 firstQ (Q xs) = last xs
 
 -- Dada una cola la devuelve sin su primer elemento.
--- Costo: O(n).
+-- Costo: O(n), siendo n la cant de elementos de la cola.
 dequeue :: Queue a -> Queue a
 dequeue (Q xs) = Q (init xs)

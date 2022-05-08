@@ -28,6 +28,6 @@ pop :: Stack a -> Stack a
 pop (S xs) = S (tail xs)
 
 -- Dada una pila devuelve su longitud.
--- Costo: constante.
+-- Costo: O(n), siendo n la cant de elementos de la pila.
 lenS :: Stack a -> Int
 lenS (S xs) = length xs

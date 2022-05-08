@@ -4,7 +4,7 @@ module Queue1(Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 --    final de la lista y desencolarse por delante.
 
 -- Invariantes de Representación:
--- 1) funciona como una cola, los elementos salen en el orden con el que entraron
+
 data Queue a = Q [a]
 
 -- Crea una cola vacía.
@@ -18,7 +18,7 @@ isEmptyQ :: Queue a -> Bool
 isEmptyQ (Q xs) = null xs
 
 -- Dados un elemento y una cola, agrega ese elemento a la cola.
--- Costo: O(n).
+-- Costo: O(n), siendo n la cant de elementos de la cola.
 queue :: a -> Queue a -> Queue a
 queue x (Q xs) = Q (xs ++ [x])
 
@@ -28,7 +28,7 @@ firstQ :: Queue a -> a
 firstQ (Q xs) = head xs
 
 -- Dada una cola la devuelve sin su primer elemento.
--- -- Costo: O(1).
+-- Costo: O(1).
 dequeue :: Queue a -> Queue a
 dequeue (Q xs) = Q (tail xs)
 

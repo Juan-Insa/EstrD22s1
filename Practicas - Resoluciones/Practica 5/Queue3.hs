@@ -4,9 +4,7 @@ module Queue3(Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 -- que todas las operaciones sean constantes (aunque alguna/s de forma amortizada).
 
 -- Invariantes de representación
--- 1) funciona como una cola, los elementos salen en el orden con el que entraron
--- 2) se quitan los elementos a través de fs y se agregan a través de bs.
--- 3) Si fs se encuentra vacía, entonces la cola se encuentra vacía.
+-- Si fs se encuentra vacía, entonces la cola se encuentra vacía.
 
 data Queue a = Q [a] [a]
 
@@ -34,7 +32,8 @@ firstQ :: Queue a -> a
 firstQ (Q fs bs) = head fs
 
 -- Dada una cola la devuelve sin su primer elemento.
--- Costo: O(n) amortizado.
+-- Costo: O(1) amortizado, en el caso que fs sea vacia O(n^2) con n siendo la cant
+-- de elementos de la backstack.
 dequeue :: Queue a -> Queue a
 dequeue (Q fs bs) = 
 	if hayUltimo fs

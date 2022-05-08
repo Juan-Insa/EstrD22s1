@@ -7,7 +7,6 @@ data Set a = S [a] Int
 -- Inv. de Representación
 -- no existen elementos repetidos en la lista
 -- el valor del Int es la longitud de la lista
--- el valor del Int no es negativo.
 
 -- Crea un conjunto vacío.
 -- Costo: O(1).
@@ -17,19 +16,10 @@ emptyS = S [] 0
 -- Dados un elemento y un conjunto, agrega el elemento al conjunto.
 -- Costo: O(n).
 addS :: Eq a => a -> Set a -> Set a
-addS x s = 
-	if belongs x s
-		then s
-		else agregar x s
-
--- Dados un elemento y un conjunto, agrega el elemento al conjunto.
--- Precondición: el elemento dado no pertenece al set.
--- Costo: O(1).
-agregar :: a -> Set a -> Set a
-agregar x (S xs l) = S (x:xs) (l+1)
+addS x (S xs l) = S (agregarSiNoPertenece x xs) l
 
 -- Dados un elemento y un conjunto indica si el elemento pertenece al conjunto.
--- Costo: O(n).
+-- Costo: O(n), siendo n la cant de elementos del conjunto.
 belongs :: Eq a => a -> Set a -> Bool
 belongs x (S xs l) = elem x xs
 
@@ -39,42 +29,34 @@ sizeS :: Eq a => Set a -> Int
 sizeS (S xs l) = l
 
 -- Borra un elemento del conjunto.
--- Costo: O(n).
+-- Costo: O(n), siendo n la cant de elementos del conjunto.
 removeS :: Eq a => a -> Set a -> Set a
-removeS x s = 
-	if belongs x s
-		then borrar x s 
-	    else s 
+removeS x (S xs l) = S (borrar x xs) l 
 
--- Borra un elemento del conjunto.
--- precondición: el elemento pertenece al conjunto.
--- Costo: O(n).
-borrar :: Eq a => a -> Set a -> Set a
-borrar x (S xs l) = S (delete x xs) (l-1)
-
--- Borra la primera iteración del elemento dado de la lista dada.
--- precondición: el elemento pertenece a la lista.
-delete :: Eq a => a -> [a] -> [a]
-delete x (y:ys) = 
+-- Borra un elemento de la lista.
+-- Costo: O(n), siendo n la cant de elementos del conjunto.
+borrar :: Eq a => a -> [a] -> [a]
+borrar x []     = []
+borrar x (y:ys)	= 
 	if x == y
 		then ys
-		else y : delete x ys
+		else y : borrar x ys
 
 -- Dados dos conjuntos devuelve un conjunto con todos los elementos de ambos. conjuntos.
--- Costo: O(n^2).
+-- Costo: O(n*m), siendo n la cant de elementos del primer conjunto y m los del segundo.
 unionS :: Eq a => Set a -> Set a -> Set a
 unionS (S xs l1) (S ys l2) = 
 	let zs = unirSinRepetidos xs ys 
 	    in S zs (length zs)
 
 -- dadas dos listas de elementos las une sin repetidos.
--- Costo: O(n^2).
+-- Costo: O(n*m), siendo n la cant de elementos la primer lista y m los de la segunda.
 unirSinRepetidos :: Eq a => [a] -> [a] -> [a]
 unirSinRepetidos []     ys = ys
 unirSinRepetidos (x:xs) ys = agregarSiNoPertenece x (unirSinRepetidos xs ys)
 
 -- dados un elemento y una lista de elementos, agrega el elemento si no se encuentra en la lista.
--- Costo: O(n^2).
+-- Costo: O(m), siendo m la cant de elementos de la lista.
 agregarSiNoPertenece :: Eq a => a -> [a] -> [a]
 agregarSiNoPertenece e []     = e : []
 agregarSiNoPertenece e (y:ys) =
@@ -83,6 +65,6 @@ agregarSiNoPertenece e (y:ys) =
 	  else y : agregarSiNoPertenece e ys
 
 -- Dado un conjunto devuelve una lista con todos los elementos distintos del conjunto.
--- -- Costo: O(1).
+-- Costo: O(1).
 setToList :: Eq a => Set a -> [a]
 setToList (S xs l) = xs
