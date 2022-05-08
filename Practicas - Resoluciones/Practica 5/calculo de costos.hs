@@ -41,7 +41,8 @@ append :: [a] -> [a] -> [a]
 append [] ys = ys
 append (x:xs) ys = x : append xs ys
 
--- Costo: O(n^2), siendo n la cantidad de elementos de la lista.
+-- Costo: O(n*m), siendo n la cantidad de elementos (strings) de la lista y m la cantidad
+-- total de caracteres.
 concatenar :: [String] -> String
 concatenar [] = []
 concatenar (x:xs) = x ++ concatenar xs
