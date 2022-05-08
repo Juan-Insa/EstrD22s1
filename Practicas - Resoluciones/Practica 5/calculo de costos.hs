@@ -16,7 +16,7 @@ longitud :: [a] -> Int
 longitud [] = 0
 longitud (x:xs) = 1 + longitud xs
 
--- Costo: O(n*x), siendo n es la cant de nros y x la suma de todos los nros de la lista.
+-- Costo: O(n*m), siendo n es la cant de nros de la lista y m la suma de todos los nros de la lista.
 factoriales :: [Int] -> [Int]
 factoriales [] = []
 factoriales (x:xs) = factorial x : factoriales xs
